@@ -2,11 +2,12 @@
 
 Version: 1.0.0
 
-- Compiled Java against Android SDK 35.
-- Android resources and manifest compiled with official AAPT2.
-- DEX produced with official D8; APK aligned and signature verified with Android SDK tools.
+- Standard Gradle `assembleDebug lintDebug` passed locally: zero lint errors.
+- GitHub Actions build, lint and artifact upload passed: [successful run](https://github.com/marcuschelete/King/actions/runs/39180700888).
+- SDK-only build script also passed using Android SDK 35, official AAPT2, D8, zipalign and apksigner.
+- Published APK signature verified. Downloaded GitHub APK SHA-256 matches the locally signed file; see `downloads/SHA256SUMS`.
 - Minimum Android version: API 28 (Android 9); target: API 34.
-- Standard Gradle `assembleDebug lintDebug` passed (43 tasks; zero lint errors).
-- Android 10 software-emulator interaction checks are in progress; not yet claimed as passed.
+- Android 10 software emulator: APK installation, app launch, Home rendering, installed-app discovery and opening the ritual editor passed. Home and Apps screenshots were visually inspected.
+- The extended UI script stopped at a case-sensitive test selector (`Cancel` versus Android's `CANCEL`). No app crash appeared in that run. The full interaction suite was not completed; focus, backups, permissions and routine-history behavior have not been verified end to end on a device.
 
 Physical-device behavior, OEM-specific Home selection and screen-time accuracy still require testing on the user's phone. Calendar and voice depend on the installed providers. No claim of complete parity with another product is made.
