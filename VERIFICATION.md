@@ -5,7 +5,9 @@
 - SDK-only build passed; APK signature verified.
 - Signing certificate SHA-256 matches 1.0.0, permitting in-place updates. Version code increased to 2.
 - 13 gesture policy checks passed, including scroll preservation, diagonal movement and long-press rejection.
-- UI and upgrade emulator checks pending.
+- GitHub Actions compile, lint, gesture tests and artifact upload passed: [successful run](https://github.com/marcuschelete/King/actions/runs/39205510367).
+- Downloaded 1.1.0 APK hash matches the local signed artifact; see `downloads/SHA256SUMS`.
+- Android 10 software emulator booted, but installation of the **old 1.0.0 APK** timed out after 90 seconds during upgrade-test setup. The new UI and actual in-place upgrade were therefore not exercised on that emulator. No runtime or visual QA pass is claimed for 1.1.0; physical-device checking remains necessary.
 
 ## Version 1.0.0
 
