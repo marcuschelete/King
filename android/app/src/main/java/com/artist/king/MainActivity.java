@@ -28,6 +28,9 @@ import java.util.*;
 public class MainActivity extends Activity {
     private SharedPreferences prefs;
     private LinearLayout root, body;
+    private ScrollView mainScroll;
+    private String touchPage;
+    private boolean touchAtTop;
     private TextView clock, timerLabel;
     private int ink, paper, muted, line;
     private String page = "Home", visibleDay = "";
@@ -35,6 +38,7 @@ public class MainActivity extends Activity {
     private final List<App> apps = new ArrayList<>();
     private float downX, downY;
     private boolean swiped;
+    private long touchStart;
     private static final int VOICE=5, EXPORT=6, IMPORT=7;
     private static class App {
         String id, pkg, label;
@@ -59,45 +63,69 @@ public class MainActivity extends Activity {
             a.put(item("Prayer & intention", "07:00")).put(item("Deep study", "08:00")).put(item("Train & move", "17:00")).put(item("Evening review", "21:00"));
             prefs.edit().putString("routines",a.toString()).apply();
         }
+        if(!prefs.getBoolean("designV2",false))prefs.edit().putBoolean("fullscreen",true).putBoolean("designV2",true).apply();
         render();
     }
     @Override protected void onResume() {super.onResume(); loadApps(); render(); handler.removeCallbacks(tick); handler.post(tick);}
     @Override protected void onPause() {super.onPause();handler.removeCallbacks(tick);}
     @Override protected void onNewIntent(Intent i) {super.onNewIntent(i);setIntent(i);page="Home";render();}
-    @Override public void onBackPressed() {page="Home";render();}
-    @Override public boolean dispatchTouchEvent(android.view.MotionEvent e) {
-        if(e.getAction()==MotionEvent.ACTION_DOWN){downX=e.getX();downY=e.getY();swiped=false;}
-        if(e.getAction()==MotionEvent.ACTION_UP && !swiped && Math.abs(e.getX()-downX)>dp(110) && Math.abs(e.getY()-downY)<dp(60)) {
-            String[] pages={"Home","Apps","Board","Ritual","Focus","Settings"};
-            int n=Arrays.asList(pages).indexOf(page), next=n+(e.getX()<downX?1:-1);
-            if(next>=0&&next<pages.length){MotionEvent cancel=MotionEvent.obtain(e);cancel.setAction(MotionEvent.ACTION_CANCEL);super.dispatchTouchEvent(cancel);cancel.recycle();go(pages[next]);swiped=true;return true;}
+    @Override public void onBackPressed() {go(Arrays.asList("Ritual","Tasks","Notes").contains(page)?"Board":"Home");}
+    @Override public boolean dispatchTouchEvent(MotionEvent e) {
+        if(e.getActionMasked()==MotionEvent.ACTION_DOWN){
+            downX=e.getX();downY=e.getY();swiped=false;touchPage=page;
+            touchAtTop=mainScroll==null||!mainScroll.canScrollVertically(-1);touchStart=SystemClock.elapsedRealtime();
+        }
+        if(swiped)return true;
+        if(e.getPointerCount()==1 && (e.getActionMasked()==MotionEvent.ACTION_MOVE||e.getActionMasked()==MotionEvent.ACTION_UP)){
+            float dx=e.getX()-downX,dy=e.getY()-downY;
+            String target=GestureRoutes.destination(touchPage,dx/getResources().getDisplayMetrics().density,dy/getResources().getDisplayMetrics().density,touchAtTop,SystemClock.elapsedRealtime()-touchStart);
+            if(target!=null){
+                MotionEvent cancel=MotionEvent.obtain(e);cancel.setAction(MotionEvent.ACTION_CANCEL);super.dispatchTouchEvent(cancel);cancel.recycle();
+                swiped=true; prefs.edit().putBoolean("gesturesSeen",true).apply();go(target);return true;
+            }
         }
         return super.dispatchTouchEvent(e);
     }
     private void render() {
-        visibleDay=day(); boolean light=prefs.getBoolean("light",false);setTheme(light?R.style.LightTheme:R.style.AppTheme);paper=light?Color.WHITE:Color.BLACK;ink=light?Color.BLACK:Color.WHITE;muted=light?0xff626262:0xffa5a5a5;line=light?0xffdddddd:0xff282828;
-        getWindow().setStatusBarColor(paper); getWindow().setNavigationBarColor(paper);
+        visibleDay=day();boolean light=prefs.getBoolean("light",false);setTheme(light?R.style.LightTheme:R.style.AppTheme);
+        paper=light?0xfffafafa:0xff111111;ink=light?0xff171717:0xffeeeeee;muted=light?0xff707070:0xff999999;line=light?0xffe4e4e4:0xff292929;
+        getWindow().setStatusBarColor(paper);getWindow().setNavigationBarColor(paper);
         getWindow().getDecorView().setSystemUiVisibility(light?View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR:0);
-        if(prefs.getBoolean("fullscreen",false))getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if(prefs.getBoolean("fullscreen",true))getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         clock=null;timerLabel=null;
-        root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(paper);root.setPadding(dp(22),dp(12),dp(22),dp(8));setContentView(root);
-        LinearLayout brand=row();TextView logo=text("K I N G  /  F O C U S",12,muted);brand.addView(logo,new LinearLayout.LayoutParams(0,dp(40),1));TextView gear=button("•••",()->go("Settings"));gear.setContentDescription("Settings");brand.addView(gear);root.addView(brand);
-        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(0,dp(12),0,dp(20));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-        switch(page){case "Apps":appsPage();break;case "Board":board();break;case "Ritual":ritual();break;case "Focus":focus();break;case "Settings":settings();break;default:home();}
-        View divider=new View(this);divider.setBackgroundColor(line);root.addView(divider,new LinearLayout.LayoutParams(-1,dp(1)));
-        LinearLayout nav=row();for(String s:new String[]{"Home","Apps","Board","Ritual","Focus"}){TextView b=button(s,()->go(s));b.setTextSize(11);b.setPadding(0,dp(14),0,dp(14));b.setGravity(Gravity.CENTER);b.setTextColor(page.equals(s)?ink:muted);nav.addView(b,new LinearLayout.LayoutParams(0,dp(52),1));}root.addView(nav);
+        root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(paper);root.setPadding(dp(22),dp(10),dp(22),dp(8));setContentView(root);
+        LinearLayout top=row();
+        if(page.equals("Home")){
+            Intent battery=registerReceiver(null,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            int level=battery==null?-1:battery.getIntExtra(BatteryManager.EXTRA_LEVEL,-1),scale=battery==null?100:battery.getIntExtra(BatteryManager.EXTRA_SCALE,100);
+            TextView status=text(level<0?"":Math.round(level*100f/Math.max(1,scale))+"%",13,muted);status.setGravity(Gravity.CENTER);top.addView(status,new LinearLayout.LayoutParams(0,dp(48),1));
+            TextView settings=button("⚙",()->go("Settings"));settings.setContentDescription("Settings");settings.setTextSize(23);settings.setGravity(Gravity.CENTER);top.addView(settings,new LinearLayout.LayoutParams(dp(48),dp(48)));
+        }else{
+            TextView back=button("‹",()->go(Arrays.asList("Ritual","Tasks","Notes").contains(page)?"Board":"Home"));back.setContentDescription("Back");back.setTextSize(30);top.addView(back,new LinearLayout.LayoutParams(dp(48),dp(48)));
+            TextView label=text(page.equals("Board")?"your day":page.equals("Ritual")?"routine":page.toLowerCase(Locale.ROOT),14,muted);top.addView(label,new LinearLayout.LayoutParams(0,-2,1));
+            if(page.equals("Board")){TextView add=button("+",()->capture(null));add.setContentDescription("Quick capture");add.setTextSize(28);top.addView(add,new LinearLayout.LayoutParams(dp(48),dp(48)));}
+        }
+        root.addView(top);mainScroll=new ScrollView(this);mainScroll.setFillViewport(true);mainScroll.setVerticalScrollBarEnabled(false);
+        body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(0,dp(8),0,dp(24));mainScroll.addView(body);root.addView(mainScroll,new LinearLayout.LayoutParams(-1,0,1));
+        switch(page){case "Apps":appsPage();break;case "Board":board();break;case "Ritual":ritual();break;case "Focus":focus();break;case "Settings":settings();break;case "Tasks":title("Tasks","");entries("tasks");body.addView(button("+ Add task",()->capture("todo: ")));break;case "Notes":title("Notes","");entries("notes");body.addView(button("+ Add note",()->capture("note: ")));break;default:home();}
+        // Native accessibility actions are an alternative to gestures, without a persistent tab bar.
+        root.setAccessibilityDelegate(new View.AccessibilityDelegate(){
+            public void onInitializeAccessibilityNodeInfo(View v,android.view.accessibility.AccessibilityNodeInfo info){super.onInitializeAccessibilityNodeInfo(v,info);int id=10001;for(String name:new String[]{"Home","Apps","Board","Focus","Settings"})info.addAction(new android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(id++,"Open "+name));}
+            public boolean performAccessibilityAction(View v,int action,Bundle args){if(action>=10001&&action<=10005){go(new String[]{"Home","Apps","Board","Focus","Settings"}[action-10001]);return true;}return super.performAccessibilityAction(v,action,args);}
+        });
     }
     private void home() {
-        clock=text("",64,ink);clock.setTypeface(Typeface.create("sans-serif-thin",Typeface.NORMAL));body.addView(clock);
-        body.addView(text(new SimpleDateFormat("EEEE, d MMMM",Locale.getDefault()).format(new Date()).toUpperCase(Locale.getDefault()),12,muted));space(24);
-        TextView intention=text(prefs.getString("intention","Give this day a purpose."),22,ink);intention.setOnClickListener(v->edit("Today's intention",prefs.getString("intention",""),s->{prefs.edit().putString("intention",s).apply();render();}));body.addView(intention);space(24);
-        if(remaining()>0){body.addView(button("FOCUS ACTIVE  →",()->go("Focus")));timerLabel=text(formatDuration(remaining()),24,ink);body.addView(timerLabel);space(12);}
-        List<String> pins=list("pins");section("ESSENTIALS");int count=0;
-        for(String id:pins){App a=findApp(id);if(a!=null&&!set("hidden").contains(id)){appRow(body,a,true);count++;}}
-        if(count==0){body.addView(text("A quiet home starts with fewer choices.",16,muted));body.addView(button("Choose your essential apps  →",()->go("Apps")));}
-        space(18);section("NEXT IN YOUR DAY");body.addView(text(nextRoutine(),18,ink));
-        body.addView(button("Quick capture  +",()->capture(null)));
-        body.addView(button("Phone",()->safeStart(new Intent(Intent.ACTION_DIAL))));
+        float height=getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density;
+        space(height<650?18:52);
+        clock=text(new SimpleDateFormat(prefs.getBoolean("clock24",true)?"HH:mm":"h:mm a",Locale.getDefault()).format(new Date()),prefs.getBoolean("clock24",true)?66:48,ink);
+        clock.setTypeface(Typeface.create("sans-serif-light",Typeface.NORMAL));clock.setGravity(Gravity.CENTER);body.addView(clock,new LinearLayout.LayoutParams(-1,-2));
+        clock.setOnLongClickListener(v->{go("Settings");return true;});clock.setContentDescription("Clock. Long press for settings");
+        space(12);TextView date=text(new SimpleDateFormat("EEEE, d MMMM",Locale.getDefault()).format(new Date()),16,muted);date.setGravity(Gravity.CENTER);body.addView(date,new LinearLayout.LayoutParams(-1,-2));
+        space(height<650?24:32);int count=0;
+        for(String id:list("pins")){App a=findApp(id);if(a!=null&&!set("hidden").contains(id)){appRow(body,a,true);if(++count==5)break;}}
+        if(count==0){TextView choose=button("choose your essentials",()->go("Apps"));choose.setTextColor(muted);choose.setGravity(Gravity.CENTER);body.addView(choose);}
+        if(remaining()>0){space(12);timerLabel=text(formatDuration(remaining()),15,muted);timerLabel.setGravity(Gravity.CENTER);timerLabel.setOnClickListener(v->go("Focus"));body.addView(timerLabel);}
+        if(!prefs.getBoolean("gesturesSeen",false)){space(24);TextView hint=text("↑ apps     ← your day     → focus",11,muted);hint.setGravity(Gravity.CENTER);body.addView(hint);}
     }
     private void loadApps() {
         apps.clear(); Intent i=new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
@@ -109,7 +137,7 @@ public class MainActivity extends Activity {
         apps.sort((a,b)->label(a).compareToIgnoreCase(label(b)));
     }
     private void appsPage() {
-        title("Less noise.","YOUR APPS / Long-press to organise");
+
         EditText search=input("Find an app","");search.setSingleLine(true);body.addView(search);
         LinearLayout results=new LinearLayout(this);results.setOrientation(LinearLayout.VERTICAL);body.addView(results);
         Runnable filter=()->{results.removeAllViews();String q=search.getText().toString().trim().toLowerCase(Locale.ROOT);for(App a:apps)if(!set("hidden").contains(a.id)&&label(a).toLowerCase(Locale.ROOT).contains(q))appRow(results,a,false);if(results.getChildCount()==0)results.addView(text("No matching apps.",16,muted));};
@@ -117,9 +145,9 @@ public class MainActivity extends Activity {
     }
     private void appRow(LinearLayout parent,App a,boolean big) {
         String prefix="";
-        TextView t=button(prefix+label(a)+(set("distract").contains(a.id)?"  ·":""),()->launch(a));t.setTextSize((big?29:20)+prefs.getInt("size",0));
-        if(prefs.getBoolean("letters",false)){LetterIcon icon=new LetterIcon(label(a).substring(0,1).toUpperCase(Locale.ROOT));icon.setBounds(0,0,dp(34),dp(34));t.setCompoundDrawables(icon,null,null,null);t.setCompoundDrawablePadding(dp(14));}
-        t.setTypeface(Typeface.create(prefs.getString("weight","sans-serif-light"),Typeface.NORMAL));t.setGravity(prefs.getBoolean("right",false)?Gravity.RIGHT|Gravity.CENTER_VERTICAL:Gravity.LEFT|Gravity.CENTER_VERTICAL);
+        TextView t=button(prefix+label(a)+(set("distract").contains(a.id)?"  ·":""),()->launch(a));t.setTextSize((big?21:19)+prefs.getInt("size",0));
+        if(!big&&prefs.getBoolean("letters",false)){LetterIcon icon=new LetterIcon(label(a).substring(0,1).toUpperCase(Locale.ROOT));icon.setBounds(0,0,dp(34),dp(34));t.setCompoundDrawables(icon,null,null,null);t.setCompoundDrawablePadding(dp(14));}
+        t.setTypeface(Typeface.create(big?"sans-serif":prefs.getString("weight","sans-serif-light"),Typeface.NORMAL));t.setGravity(big?Gravity.CENTER:(prefs.getBoolean("right",false)?Gravity.END:Gravity.START)|Gravity.CENTER_VERTICAL);if(big){t.setMinHeight(dp(56));t.setPadding(dp(4),dp(12),dp(4),dp(12));}
         t.setOnLongClickListener(v->{organise(a);return true;});parent.addView(t,new LinearLayout.LayoutParams(-1,-2));
     }
     private void organise(App a) {
@@ -145,10 +173,32 @@ public class MainActivity extends Activity {
             dialog.setOnDismissListener(x->handler.removeCallbacks(r));b.setOnClickListener(x->{dialog.dismiss();openApp(a);});});dialog.show();
     }
     private void openApp(App a){Intent i=new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setComponent(ComponentName.unflattenFromString(a.id)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);safeStart(i);}
-    private void board() {
-        title("Clear your mind.","CAPTURE / PLAN / REFLECT");body.addView(button("+  Quick capture",()->capture(null)));
+    private LinearLayout card(LinearLayout parent){
+        LinearLayout c=new LinearLayout(this);c.setOrientation(LinearLayout.VERTICAL);c.setPadding(dp(18),dp(17),dp(18),dp(17));
+        GradientDrawable background=new GradientDrawable();background.setColor(prefs.getBoolean("light",false)?0xfff0f0f0:0xff1d1d1d);background.setCornerRadius(dp(24));background.setStroke(dp(1),line);c.setBackground(background);
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(12);parent.addView(c,lp);return c;
+    }
+    private void board(){
+        LinearLayout board=body;
+        LinearLayout pair=row();pair.setGravity(Gravity.TOP);board.addView(pair);
+        LinearLayout first=new LinearLayout(this);first.setOrientation(LinearLayout.VERTICAL);LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);half.rightMargin=dp(6);pair.addView(first,half);
+        LinearLayout second=new LinearLayout(this);second.setOrientation(LinearLayout.VERTICAL);LinearLayout.LayoutParams other=new LinearLayout.LayoutParams(0,-2,1);other.leftMargin=dp(6);pair.addView(second,other);
+        body=card(first);body.setMinimumHeight(dp(172));body.setGravity(Gravity.CENTER_VERTICAL);
+        clock=text(new SimpleDateFormat("HH:mm",Locale.getDefault()).format(new Date()),30,ink);body.addView(clock);
+        body.addView(text(new SimpleDateFormat("EEEE\nd MMM",Locale.getDefault()).format(new Date()),14,muted));
+        body=card(second);body.setMinimumHeight(dp(172));body.addView(button("tasks  +",()->go("Tasks")));JSONArray tasks=array("tasks");int shown=0;
+        for(int i=0;i<tasks.length()&&shown<2;i++){JSONObject t=tasks.optJSONObject(i);if(t!=null&&!t.optBoolean("done")){TextView preview=text("○  "+t.optString("text"),15,ink);preview.setMaxLines(2);preview.setEllipsize(TextUtils.TruncateAt.END);body.addView(preview);shown++;}}
+        if(shown==0)body.addView(text("A clear slate.",14,muted));
+        body=card(board);section("INTENTION");TextView intention=button(prefs.getString("intention","Give this day a purpose."),()->edit("Today's intention",prefs.getString("intention",""),value->{prefs.edit().putString("intention",value).apply();render();}));intention.setTextSize(18);body.addView(intention);
+        body=card(board);section("DAILY RITUALS");body.addView(text(nextRoutine(),17,ink));space(12);
+        LinearLayout days=row();Calendar c=Calendar.getInstance();c.add(Calendar.DATE,-6);JSONArray routines=array("routines");
+        for(int d=0;d<7;d++){int done=0;for(int i=0;i<routines.length();i++){JSONObject r=routines.optJSONObject(i);if(r!=null&&prefs.getBoolean("done_"+date(c)+"_"+r.optString("id"),false))done++;}TextView day=text(new SimpleDateFormat("EE",Locale.getDefault()).format(c.getTime()).substring(0,1)+"\n"+done,12,done>0?ink:muted);day.setGravity(Gravity.CENTER);day.setContentDescription(date(c)+": "+done+" rituals complete");days.addView(day,new LinearLayout.LayoutParams(0,dp(44),1));c.add(Calendar.DATE,1);}body.addView(days);body.addView(button("Open routine  →",()->go("Ritual")));
+        body=card(board);section("FOCUS");body.addView(text(prefs.getInt("sessions_"+day(),0)+" sessions today",20,ink));body.addView(button(remaining()>0?"Continue session  →":"Begin deep work  →",()->go("Focus")));
+        body=card(board);section("SCREEN TIME");usageCard();
+        body=card(board);section("NEXT EVENT");calendarCard();
+        body=card(board);section("CAPTURE");body.addView(button("+ Quick capture",()->capture(null)));body.addView(button("Notes  →",()->go("Notes")));
         body.addView(button("Voice capture",()->{new AlertDialog.Builder(this).setTitle("Voice input").setMessage("KING stores the result locally. Your phone's speech provider may use the internet; offline recognition is requested but is not guaranteed. Type instead for fully offline capture.").setPositiveButton("Continue",(d,w)->{Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM).putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE,true);try{startActivityForResult(i,VOICE);}catch(ActivityNotFoundException ex){toast("No speech provider. Use your keyboard microphone or type.");}}).setNegativeButton("Cancel",null).show();}));
-        section("NEXT EVENT");calendarCard();space(16);section("TASKS");entries("tasks");body.addView(button("+  Add task",()->capture("todo: ")));space(16);section("NOTES");entries("notes");space(16);section("PHONE AWARENESS");usageCard();
+        body=board;
     }
     private void capture(String initial) {
         edit("Quick capture • todo: or note:",initial==null?"":initial,s->{if(s.isEmpty())return;String key=s.toLowerCase(Locale.ROOT).startsWith("todo:")?"tasks":"notes";s=s.replaceFirst("(?i)^(todo|note):\\s*","");if(s.trim().isEmpty())return;JSONArray a=array(key);a.put(item(s,""));saveArray(key,a);render();});
@@ -162,7 +212,7 @@ public class MainActivity extends Activity {
         }
     }
     private void ritual() {
-        title("Keep your word.","DAILY ROUTINE / RESETS AT MIDNIGHT");body.addView(text("Small acts, faithfully repeated.",17,muted));space(16);
+        title("Daily rituals","Resets at midnight");
         JSONArray a=array("routines");int complete=0;
         for(int n=0;n<a.length();n++){
             JSONObject o=a.optJSONObject(n);if(o==null)continue;String id=o.optString("id");boolean done=prefs.getBoolean("done_"+day()+"_"+id,false);if(done)complete++;
@@ -181,7 +231,7 @@ public class MainActivity extends Activity {
     private String nextRoutine(){JSONArray a=array("routines");String now=new SimpleDateFormat("HH:mm",Locale.ROOT).format(new Date()),first="",next="";for(int i=0;i<a.length();i++){JSONObject o=a.optJSONObject(i);if(o==null||prefs.getBoolean("done_"+day()+"_"+o.optString("id"),false))continue;String t=o.optString("time")+"  "+o.optString("text");if(first.isEmpty()||t.compareTo(first)<0)first=t;if(o.optString("time").compareTo(now)>=0&&(next.isEmpty()||t.compareTo(next)<0))next=t;}return !next.isEmpty()?next:!first.isEmpty()?"Still to do: "+first:"Today's rituals are complete.";}
     private int streak(String id){Calendar c=Calendar.getInstance();int n=0;if(!prefs.getBoolean("done_"+date(c)+"_"+id,false))c.add(Calendar.DATE,-1);for(int i=0;i<3660;i++){if(!prefs.getBoolean("done_"+date(c)+"_"+id,false))break;n++;c.add(Calendar.DATE,-1);}return n;}
     private void focus() {
-        title("One thing.","DEEP WORK / DELIBERATE REST");
+        title("One thing.","Deep work, deliberate rest");
         body.addView(text("Distracting apps pause inside this launcher during a session. Long-press apps to mark them. Notifications and other launch routes remain available.",16,muted));space(24);
         if(remaining()>0){timerLabel=text(formatDuration(remaining()),64,ink);body.addView(timerLabel);body.addView(text(prefs.getString("focusTask",""),22,ink));body.addView(button("End session",()->confirm("End this focus session early?",()->{prefs.edit().putLong("focusEnd",0).apply();render();})));}
         else {EditText task=input("What will you finish?",prefs.getString("focusTask",""));body.addView(task);for(int minutes:new int[]{25,50,90})body.addView(button("Start "+minutes+" minutes  →",()->{String s=task.getText().toString().trim();if(s.isEmpty()){toast("Choose one task first.");return;}prefs.edit().putString("focusTask",s).putLong("focusEnd",System.currentTimeMillis()+minutes*60000L).putLong("focusElapsedEnd",SystemClock.elapsedRealtime()+minutes*60000L).putInt("focusBoot",Settings.Global.getInt(getContentResolver(),Settings.Global.BOOT_COUNT,0)).apply();hideKeyboard();render();}));}
@@ -208,10 +258,13 @@ public class MainActivity extends Activity {
         }catch(RuntimeException e){body.addView(text("This device did not provide usage history.",15,muted));}
     }
     private void settings(){
-        title("Make room.","APPEARANCE / ACCESS / YOUR DATA");
+        title("Make room.","Appearance and preferences");
+        body.addView(button("Navigation & gestures",()->new AlertDialog.Builder(this).setTitle("Move quietly").setMessage("From Home: swipe up for apps, left for your day, right for focus.\n\nFrom your day or focus: swipe horizontally back toward Home. Swipe right from routines, tasks, notes or settings to go back. In Apps, swipe down at the top to return Home.\n\nTap the clock and hold for settings. Android Back and the small back arrow also work.").setPositiveButton("Got it",null).show()));
+        body.addView(button("Open apps",()->go("Apps")));body.addView(button("Open dashboard",()->go("Board")));body.addView(button("Open focus",()->go("Focus")));
+        body.addView(button("Phone",()->safeStart(new Intent(Intent.ACTION_DIAL))));
         body.addView(button("Set KING as default Home app",()->{if(Build.VERSION.SDK_INT>=29){RoleManager r=getSystemService(RoleManager.class);if(r!=null&&r.isRoleAvailable(RoleManager.ROLE_HOME)&&!r.isRoleHeld(RoleManager.ROLE_HOME)){startActivityForResult(r.createRequestRoleIntent(RoleManager.ROLE_HOME),9);return;}}safeStart(new Intent(Settings.ACTION_HOME_SETTINGS));}));
-        toggle("Milk white theme","light",false);toggle("Hide status bar","fullscreen",false);toggle("Soft haptic feedback","haptics",true);toggle("Letter icons","letters",false);toggle("Right aligned app list","right",false);toggle("24-hour clock","clock24",true);
-        body.addView(button("Font weight",()->new AlertDialog.Builder(this).setTitle("Typography").setItems(new String[]{"Light","Regular","Bold"},(d,n)->{prefs.edit().putString("weight",new String[]{"sans-serif-light","sans-serif","sans-serif-black"}[n]).apply();render();}).show()));
+        toggle("Milk white theme","light",false);toggle("Hide status bar","fullscreen",true);toggle("Soft haptic feedback","haptics",true);toggle("Drawer letter icons","letters",false);toggle("Right aligned drawer","right",false);toggle("24-hour clock","clock24",true);
+        body.addView(button("Drawer font weight",()->new AlertDialog.Builder(this).setTitle("Typography").setItems(new String[]{"Light","Regular","Bold"},(d,n)->{prefs.edit().putString("weight",new String[]{"sans-serif-light","sans-serif","sans-serif-black"}[n]).apply();render();}).show()));
         body.addView(button("Letter icon stroke",()->new AlertDialog.Builder(this).setTitle("Icon stroke").setItems(new String[]{"Fine","Standard","Strong"},(d,n)->{prefs.edit().putInt("stroke",n+1).apply();render();}).show()));
         body.addView(button("App text size",()->new AlertDialog.Builder(this).setTitle("Text size").setItems(new String[]{"Compact","Standard","Large"},(d,n)->{prefs.edit().putInt("size",new int[]{-3,0,4}[n]).apply();render();}).show()));
         body.addView(button("Hidden apps ("+set("hidden").size()+")",()->{List<App> h=new ArrayList<>();for(App a:apps)if(set("hidden").contains(a.id))h.add(a);String[] names=new String[h.size()];for(int i=0;i<h.size();i++)names[i]="Show "+label(h.get(i));new AlertDialog.Builder(this).setTitle("Restore hidden apps").setItems(names,(d,n)->{toggleSet("hidden",h.get(n).id);render();}).setNegativeButton("Close",null).show();}));
@@ -219,7 +272,7 @@ public class MainActivity extends Activity {
         body.addView(button("Restore backup",()->confirm("Replace KING's current settings, tasks, notes and routine history with a backup?",()->{try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE),IMPORT);}catch(ActivityNotFoundException e){toast("No file picker available.");}})));
         body.addView(button("Android app permissions",()->safeStart(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())))));
         body.addView(button("Switch back to another launcher",()->safeStart(new Intent(Settings.ACTION_HOME_SETTINGS))));space(12);
-        body.addView(text("KING Focus 1.0 • Independent, original launcher.\nNo ads. No analytics. No network permission.\nBackups are unencrypted: keep them private. Voice input is handled by your chosen speech provider. Daily rituals are a checklist, not alarm notifications.",13,muted));
+        body.addView(text("KING Focus 1.1 • Independent, original launcher.\nNo ads. No analytics. No network permission.\nBackups are unencrypted: keep them private. Voice input is handled by your chosen speech provider. Daily rituals are a checklist, not alarm notifications.",13,muted));
     }
     @Override public void onRequestPermissionsResult(int req,String[] p,int[] r){super.onRequestPermissionsResult(req,p,r);render();}
     @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(result!=RESULT_OK||data==null)return;
@@ -227,7 +280,7 @@ public class MainActivity extends Activity {
         if(request==EXPORT&&data.getData()!=null){try{JSONObject backup=new JSONObject();backup.put("format","king-focus-v1");JSONObject values=new JSONObject();for(Map.Entry<String,?> e:prefs.getAll().entrySet())values.put(e.getKey(),e.getValue());backup.put("values",values);try(OutputStream out=getContentResolver().openOutputStream(data.getData())){if(out==null)throw new IOException();out.write(backup.toString(2).getBytes(StandardCharsets.UTF_8));}toast("Backup saved.");}catch(Exception e){toast("Could not export backup.");}}
         if(request==IMPORT&&data.getData()!=null){try(InputStream in=getContentResolver().openInputStream(data.getData())){if(in==null)throw new IOException();ByteArrayOutputStream bytes=new ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1){if(bytes.size()+n>2*1024*1024)throw new IOException();bytes.write(buffer,0,n);}JSONObject b=new JSONObject(bytes.toString("UTF-8"));if(!"king-focus-v1".equals(b.optString("format")))throw new IOException();JSONObject values=b.getJSONObject("values");validateBackup(values);SharedPreferences.Editor ed=prefs.edit().clear();Iterator<String> keys=values.keys();while(keys.hasNext()){String k=keys.next();Object v=values.get(k);if(v instanceof Boolean)ed.putBoolean(k,(Boolean)v);else if(v instanceof Number){if(k.equals("size")||k.equals("stroke")||k.equals("focusBoot")||k.startsWith("sessions_"))ed.putInt(k,((Number)v).intValue());else ed.putLong(k,((Number)v).longValue());}else if(v instanceof String)ed.putString(k,(String)v);}ed.putLong("focusEnd",0).commit();loadApps();render();toast("Backup restored. Active timer cleared.");}catch(Exception e){toast("Invalid backup. Your existing data was kept.");}}
     }
-    private void validateBackup(JSONObject v)throws Exception {Iterator<String> it=v.keys();while(it.hasNext()){String k=it.next();Object o=v.get(k);boolean bool=Arrays.asList("light","fullscreen","haptics","letters","right","clock24").contains(k)||k.startsWith("done_");boolean number=Arrays.asList("size","stroke","focusBoot","focusEnd","focusElapsedEnd").contains(k)||k.startsWith("sessions_");if(bool&&!(o instanceof Boolean)||number&&!(o instanceof Number)||!bool&&!number&&!(o instanceof String))throw new IOException();}
+    private void validateBackup(JSONObject v)throws Exception {Iterator<String> it=v.keys();while(it.hasNext()){String k=it.next();Object o=v.get(k);boolean bool=Arrays.asList("light","fullscreen","haptics","letters","right","clock24","designV2","gesturesSeen").contains(k)||k.startsWith("done_");boolean number=Arrays.asList("size","stroke","focusBoot","focusEnd","focusElapsedEnd").contains(k)||k.startsWith("sessions_");if(bool&&!(o instanceof Boolean)||number&&!(o instanceof Number)||!bool&&!number&&!(o instanceof String))throw new IOException();}
         for(String key:new String[]{"tasks","notes","routines","pins","hidden","distract"})if(v.has(key)){JSONArray a=new JSONArray(v.getString(key));for(int i=0;i<a.length();i++){if(Arrays.asList("pins","hidden","distract").contains(key)){if(!(a.get(i) instanceof String))throw new IOException();}else{JSONObject o=a.getJSONObject(i);if(!o.has("id")||!o.has("text"))throw new IOException();if(key.equals("routines")&&!o.optString("time").matches("([01]\\d|2[0-3]):[0-5]\\d"))throw new IOException();}}}
     }
     private class LetterIcon extends android.graphics.drawable.Drawable {
@@ -237,10 +290,10 @@ public class MainActivity extends Activity {
         public void setAlpha(int a){paint.setAlpha(a);} public void setColorFilter(android.graphics.ColorFilter f){paint.setColorFilter(f);} public int getOpacity(){return android.graphics.PixelFormat.TRANSLUCENT;}
     }
     private void toggle(String label,String key,boolean fallback){Switch s=new Switch(this);s.setText(label);s.setTextSize(16);s.setTextColor(ink);s.setPadding(0,dp(10),0,dp(10));s.setMinHeight(dp(52));s.setChecked(prefs.getBoolean(key,fallback));s.setOnCheckedChangeListener((b,c)->{prefs.edit().putBoolean(key,c).apply();render();});body.addView(s);}
-    private void go(String p){hideKeyboard();page=p;render();}
+    private void go(String p){hideKeyboard();page=p;render();body.setAlpha(0.35f);body.animate().alpha(1f).setDuration(150).start();}
     private void hideKeyboard(){View f=getCurrentFocus();if(f!=null)((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(f.getWindowToken(),0);}
     private void safeStart(Intent i){try{startActivity(i);}catch(RuntimeException e){toast("This action isn't available on your device.");}}
-    private void title(String h,String sub){body.addView(text(h,36,ink));space(8);body.addView(text(sub,11,muted));space(22);}
+    private void title(String h,String sub){body.addView(text(h,28,ink));space(8);body.addView(text(sub,11,muted));space(22);}
     private void section(String s){space(8);body.addView(text(s,11,muted));space(8);}
     private void space(int h){Space s=new Space(this);body.addView(s,new LinearLayout.LayoutParams(1,dp(h)));}
     private LinearLayout row(){LinearLayout r=new LinearLayout(this);r.setGravity(Gravity.CENTER_VERTICAL);return r;}

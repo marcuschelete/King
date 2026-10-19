@@ -1,6 +1,13 @@
 # Verification
 
-Version: 1.0.0
+## Version 1.1.0
+
+- SDK-only build passed; APK signature verified.
+- Signing certificate SHA-256 matches 1.0.0, permitting in-place updates. Version code increased to 2.
+- 13 gesture policy checks passed, including scroll preservation, diagonal movement and long-press rejection.
+- UI and upgrade emulator checks pending.
+
+## Version 1.0.0
 
 - Standard Gradle `assembleDebug lintDebug` passed locally: zero lint errors.
 - GitHub Actions build, lint and artifact upload passed: [successful run](https://github.com/marcuschelete/King/actions/runs/39180700888).

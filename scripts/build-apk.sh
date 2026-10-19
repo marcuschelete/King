@@ -15,8 +15,8 @@ repo,work=map(pathlib.Path,sys.argv[1:]);manifest=(repo/'android/app/src/main/An
 (work/'AndroidManifest.xml').write_text(manifest.replace('<manifest ', '<manifest package="com.artist.king" ',1))
 PY
 "$build_tools/aapt2" compile --dir "$repo_dir/android/app/src/main/res" -o "$work_dir/resources.zip"
-"$build_tools/aapt2" link -o "$work_dir/base.apk" -I "$android_jar" --manifest "$work_dir/AndroidManifest.xml" --java "$work_dir/gen" --min-sdk-version 28 --target-sdk-version 34 --version-code 1 --version-name 1.0.0 "$work_dir/resources.zip"
-java com.sun.tools.javac.Main --release 8 -classpath "$android_jar" -d "$work_dir/classes" "$work_dir/gen/com/artist/king/R.java" "$repo_dir/android/app/src/main/java/com/artist/king/MainActivity.java"
+"$build_tools/aapt2" link -o "$work_dir/base.apk" -I "$android_jar" --manifest "$work_dir/AndroidManifest.xml" --java "$work_dir/gen" --min-sdk-version 28 --target-sdk-version 34 --version-code 2 --version-name 1.1.0 "$work_dir/resources.zip"
+java com.sun.tools.javac.Main --release 8 -classpath "$android_jar" -d "$work_dir/classes" "$work_dir/gen/com/artist/king/R.java" "$repo_dir"/android/app/src/main/java/com/artist/king/*.java
 python3 - "$work_dir" <<'PY'
 import pathlib,sys,zipfile
 p=pathlib.Path(sys.argv[1])

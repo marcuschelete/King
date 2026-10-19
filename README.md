@@ -4,24 +4,36 @@ A quiet, original Android home screen for intentional phone use. Monochrome, loc
 
 ## Install on your phone
 
-**[Download KING Focus 1.0.0 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.0.0.apk)**
+**[Download KING Focus 1.1.0 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.1.0.apk)**
 
 Android **9 or newer**, including Android 10. No Google Play Services required.
 
 1. Open the APK download link on your phone. Download the **APK**, not this repository's source ZIP.
 2. Open the downloaded file. If Android asks, temporarily allow your browser/file manager to **install unknown apps**, then install KING Focus. You can disable that permission again afterwards.
-3. Open **KING Focus → ••• → Set KING as default Home app**, then select KING Focus.
-4. Go to **Apps**. Long-press your essentials and choose **Pin to home**. Mark distracting apps to add a five-second pause and an intention prompt.
-5. Open **Ritual** to edit your routine. Open **Focus** to start a session. **Board** contains capture, tasks, notes, the next calendar event and usage awareness.
+3. Open **KING Focus → ⚙ → Set KING as default Home app**, then select KING Focus.
+4. **Swipe up** from Home to open Apps. Long-press your essentials and choose **Pin to home**. Mark distracting apps to add a five-second pause and an intention prompt.
+5. **Swipe left** from Home for the dashboard: routines, tasks, notes, capture, calendar and usage. **Swipe right** from Home for Focus. Tap **Open routine** on the dashboard to edit rituals. Swipe horizontally back toward Home; Android Back also works.
 6. Calendar and Usage Access are optional; enable only the features you want. Speech input uses your installed speech provider.
 
-To switch back: **KING → ••• → Switch back to another launcher**, or Android **Settings → Apps → Default apps → Home app**. Menu wording varies by manufacturer. The original launcher is not removed.
+To switch back: **KING → ⚙ → Switch back to another launcher**, or Android **Settings → Apps → Default apps → Home app**. Menu wording varies by manufacturer. The original launcher is not removed.
+
+## Version 1.1: quiet home, swipe navigation
+
+Install this APK **over the existing app**, without uninstalling. It uses the original signing key and preserves preferences, pins, notes, tasks and routine history. Export a backup first if desired.
+
+- Centered clock/date and smaller centered essentials; no branding banner, section headings or bottom tabs on Home.
+- Five essentials on Home (the first five visible pins); additional apps stay searchable in the drawer. Long-press → Move to top changes the selection without deleting pins.
+- Swipe **up**: app drawer. Swipe **left**: dashboard. Swipe **right**: focus.
+- Dashboard and routine lists scroll normally. Swipe right from dashboard to Home; swipe left from focus to Home. Swipe down at the top of the app drawer to close it.
+- Rounded monochrome dashboard cards; intention, routine history and capture moved off Home.
+- Settings: tap **⚙** or long-press the clock. Settings also offers tap-based navigation for users who do not want gestures.
+- Status bar hidden on first upgrade for a calmer home; it can be restored in Settings. Android's own navigation buttons remain available.
 
 ## What is included
 
 | Area | KING implementation |
 | --- | --- |
-| Quiet home | Text-only essentials, searchable app drawer, pins, move-to-top, rename and hide/restore apps |
+| Quiet home | Centered text-only essentials, searchable app drawer, pins, move-to-top, rename and hide/restore apps |
 | Monochrome appearance | Midnight black / milk white, adjustable app font size and weight, right alignment, outlined letter icons with three stroke weights |
 | Fullscreen and touch | Optional hidden status bar, matching navigation bar, optional subtle haptics, swipe between sections |
 | Quick capture | Local explicit `todo:` / `note:` routing; other text becomes a note; voice transcription can be reviewed before saving |

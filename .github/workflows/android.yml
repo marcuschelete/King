@@ -1,9 +1,9 @@
 name: Android build
 on:
   push:
-    paths: ['android/**', 'scripts/**', '.github/workflows/android.yml']
+    paths: ['android/**', 'scripts/**', 'tests/**', '.github/workflows/android.yml']
   pull_request:
-    paths: ['android/**', 'scripts/**', '.github/workflows/android.yml']
+    paths: ['android/**', 'scripts/**', 'tests/**', '.github/workflows/android.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,6 +25,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Verify gesture routing
+        run: |
+          mkdir -p /tmp/king-tests
+          javac -d /tmp/king-tests android/app/src/main/java/com/artist/king/GestureRoutes.java tests/GestureRoutesTest.java
+          java -cp /tmp/king-tests com.artist.king.GestureRoutesTest
       - name: Compile and lint
         working-directory: android
         run: gradle assembleDebug lintDebug --no-daemon
