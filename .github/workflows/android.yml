@@ -1,9 +1,9 @@
 name: Android build
 on:
   push:
-    paths: ['android/**', 'scripts/**', 'tests/**', '.github/workflows/android.yml']
+    paths: ['android/**', 'progress/**', 'scripts/**', 'tests/**', '.github/workflows/android.yml']
   pull_request:
-    paths: ['android/**', 'scripts/**', 'tests/**', '.github/workflows/android.yml']
+    paths: ['android/**', 'progress/**', 'scripts/**', 'tests/**', '.github/workflows/android.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,6 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: progress/package-lock.json
+      - name: Build and verify progress dashboard
+        working-directory: progress
+        run: |
+          npm ci
+          npm run build
+          node test-model.mjs
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

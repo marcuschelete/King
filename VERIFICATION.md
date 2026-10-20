@@ -1,5 +1,16 @@
 # Verification
 
+## Version 1.2.0
+
+- TypeScript checking and production dashboard bundle passed.
+- SDK-only Java compilation, resource packaging, D8, alignment and APK signature verification passed.
+- Version code 3; signing certificate SHA-256 matches v1.1: `dca922d2e205998600e238a0bfb7e923855c80f3b5b8d4d8cd004baa15a055ae`.
+- All 13 gesture routing checks passed.
+- Progress model checks passed: native storage adapter, habit scores/streaks and archival, editing, JSON backup round-trip, invalid backup preservation, and balance snapshot accounting.
+- Browser QA: metric logging, habit completion, persistence after reload, and chart updates passed. Phone viewport (390 × 844) visually inspected.
+- No Android device was connected. The actual WebView bridge, Android document pickers, installation and in-place upgrade have not been exercised on a device. Certificate compatibility is verified, but device runtime testing remains necessary.
+
+
 ## Version 1.1.0
 
 - SDK-only build passed; APK signature verified.

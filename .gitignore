@@ -6,3 +6,6 @@ local.properties
 .DS_Store
 
 *.idsig
+
+node_modules/
+progress/.vite/

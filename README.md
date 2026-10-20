@@ -4,7 +4,7 @@ A quiet, original Android home screen for intentional phone use. Monochrome, loc
 
 ## Install on your phone
 
-**[Download KING Focus 1.1.0 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.1.0.apk)**
+**[Download KING Focus 1.2.0 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.2.0.apk)**
 
 Android **9 or newer**, including Android 10. No Google Play Services required.
 
@@ -16,6 +16,21 @@ Android **9 or newer**, including Android 10. No Google Play Services required.
 6. Calendar and Usage Access are optional; enable only the features you want. Speech input uses your installed speech provider.
 
 To switch back: **KING → ⚙ → Switch back to another launcher**, or Android **Settings → Apps → Default apps → Home app**. Menu wording varies by manufacturer. The original launcher is not removed.
+
+## Version 1.2: KING × RIVAL
+
+Swipe left from Home, then tap **Raise your standard** in the **Proof of progress** card. The dashboard is bundled in the APK and works offline. It opens directly to Stats, with Today, Stats, Rival and Log across the top.
+
+- **Proof of progress:** Overview, Body, Mind, Craft, Money, Recovery, Spirit and All. **7D / 30D / 90D / 1Y / All** filters, 38 metrics, line graphs, latest values, changes and personal bests.
+- **Visuals:** strict monochrome, large monospaced numbers, bordered cards, a 28-day completion matrix and a category donut chart counting completed habits.
+- **Today:** scheduled commitments, completion percentage, streaks, add/edit/reorder/archive habits and past-day checklists.
+- **Rival:** Vale's perfect scheduled routine, points, cumulative gap chart, weekly/monthly verdicts.
+- **Log:** quick metric forms, entry editing/deletion, module grades, rapid/blitz chess, money snapshots, income/spending, savings goal, and self-review.
+- **Data:** CSV import/export, full progress JSON backup/restore, and Android-native storage. KING's Settings backup also includes progress. Use Log → Import CSV to bring metric entries from the original RIVAL website; browser checklist history does not transfer automatically.
+- Starts with an empty history and the RIVAL routine. **Log → Explore demo** optionally loads sample data; **Clear demo** removes sample metrics and resets checklist history. Demo numbers are labeled.
+- Existing pins, tasks, notes, timed rituals, settings and swipe controls remain available. Timed launcher rituals and RIVAL commitments are separate lists. Focus-session counts do not automatically become metric entries.
+
+Install **over v1.1**, without uninstalling. Version code 3 uses the same private signing certificate. Requires Android 9+ and an up-to-date Android System WebView. No new Android permissions, accounts or network access. Device-to-device sync is not included.
 
 ## Version 1.1: quiet home, swipe navigation
 
@@ -61,14 +76,26 @@ This is an independent first version, **not a pixel-perfect reproduction or veri
 
 ## Build and updates
 
-Native Java, Android platform widgets, no third-party app dependencies. Standard build: JDK 17, Gradle 8.9, Android SDK 35:
+Native Java launcher plus an offline React/TypeScript, Zustand and Recharts dashboard. Runtime dependency license notices are included in progress/THIRD_PARTY_NOTICES.txt. Standard build: JDK 17, Gradle 8.9, Android SDK 35:
 
 ```sh
 cd android
 gradle assembleDebug lintDebug
 ```
 
-Or use the SDK-only build:
+Build the progress assets before either Android build (Node 22.13+):
+
+```sh
+cd progress
+npm ci
+npm run build
+node test-model.mjs
+cd ..
+```
+
+The cross-platform signed SDK-only build is `python scripts/build-apk.py`, with `ANDROID_HOME`, `JAVA_HOME`, `KING_KEYSTORE` and `KING_SIGN_PASS` set. The signing secret and keystore stay outside the repository. It compiles, signs, verifies and runs gesture checks.
+
+Or use the shell SDK-only build:
 
 ```sh
 export ANDROID_HOME=/path/to/android-sdk

@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
     }
     private void render() {
         visibleDay=day();boolean light=prefs.getBoolean("light",false);setTheme(light?R.style.LightTheme:R.style.AppTheme);
-        paper=light?0xfffafafa:0xff111111;ink=light?0xff171717:0xffeeeeee;muted=light?0xff707070:0xff999999;line=light?0xffe4e4e4:0xff292929;
+        paper=light?0xffffffff:0xff000000;ink=light?0xff171717:0xffeeeeee;muted=light?0xff707070:0xff999999;line=light?0xffe4e4e4:0xff292929;
         getWindow().setStatusBarColor(paper);getWindow().setNavigationBarColor(paper);
         getWindow().getDecorView().setSystemUiVisibility(light?View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR:0);
         if(prefs.getBoolean("fullscreen",true))getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -175,11 +175,12 @@ public class MainActivity extends Activity {
     private void openApp(App a){Intent i=new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setComponent(ComponentName.unflattenFromString(a.id)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);safeStart(i);}
     private LinearLayout card(LinearLayout parent){
         LinearLayout c=new LinearLayout(this);c.setOrientation(LinearLayout.VERTICAL);c.setPadding(dp(18),dp(17),dp(18),dp(17));
-        GradientDrawable background=new GradientDrawable();background.setColor(prefs.getBoolean("light",false)?0xfff0f0f0:0xff1d1d1d);background.setCornerRadius(dp(24));background.setStroke(dp(1),line);c.setBackground(background);
+        GradientDrawable background=new GradientDrawable();background.setColor(prefs.getBoolean("light",false)?0xfff0f0f0:0xff1d1d1d);background.setCornerRadius(dp(4));background.setStroke(dp(1),line);c.setBackground(background);
         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(12);parent.addView(c,lp);return c;
     }
     private void board(){
         LinearLayout board=body;
+        LinearLayout progress=card(board);progress.addView(text("PROOF OF PROGRESS",12,muted));TextView progressLink=button("Raise your standard.  ↗",()->startActivity(new Intent(this,ProgressActivity.class)));progressLink.setTextSize(25);progress.addView(progressLink);progress.addView(text("BODY / MIND / CRAFT / MONEY / RECOVERY / SPIRIT",10,muted));try{JSONObject data=new JSONObject(prefs.getString("rivalData","{} ")).optJSONObject("state");int records=data==null?0:data.optJSONArray("entries").length();JSONObject history=data==null?null:data.optJSONObject("completed");JSONArray completed=history==null?null:history.optJSONArray(day());TextView numbers=text(records+" records  /  "+(completed==null?0:completed.length())+" promises today",16,ink);numbers.setTypeface(Typeface.MONOSPACE);progress.addView(numbers);}catch(Exception ignored){}
         LinearLayout pair=row();pair.setGravity(Gravity.TOP);board.addView(pair);
         LinearLayout first=new LinearLayout(this);first.setOrientation(LinearLayout.VERTICAL);LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);half.rightMargin=dp(6);pair.addView(first,half);
         LinearLayout second=new LinearLayout(this);second.setOrientation(LinearLayout.VERTICAL);LinearLayout.LayoutParams other=new LinearLayout.LayoutParams(0,-2,1);other.leftMargin=dp(6);pair.addView(second,other);
