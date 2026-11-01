@@ -1,5 +1,15 @@
 # Verification
 
+## Version 1.4.0
+
+- TypeScript production build and SDK-only Android compile, packaging, alignment and signature verification passed.
+- Version code 8; original certificate SHA-256: `dca922d2e205998600e238a0bfb7e923855c80f3b5b8d4d8cd004baa15a055ae`.
+- 13 gesture, 12 update policy, 35 calendar/timezone and 8 alphabet grouping checks passed.
+- Finance checks cover exact minor units, fees, account transfers, currency separation, cross-currency amounts, edit/delete recalculation and invalid/date-boundary inputs.
+- Progress model checks cover existing habits, native persistence, finance backup round-trip, invalid restore preserving data, older backups and demo clearing preserving actual finance.
+- Browser test at 390 × 844: created an account, saved income and expense with fees, reloaded and verified the resulting balance and stored transactions. No page errors or horizontal overflow. Visual inspection caught and corrected transparent text on filled buttons.
+- No Android device runtime pass is claimed. Native folders, A–Z drag, wallpaper, permission flows, real school-calendar sync, WebView bridge and in-place install still need device verification.
+
 ## Version 1.2.0
 
 - TypeScript checking and production dashboard bundle passed.

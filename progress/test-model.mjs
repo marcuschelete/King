@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import ts from 'typescript';
 const temp=new URL('./node_modules/.king-tests/',import.meta.url);await fs.mkdir(temp,{recursive:true});
-for(const name of ['native','model','summary']){
+for(const name of ['finance','native','model','summary']){
  const source=await fs.readFile(new URL(`./src/${name}.${name==='summary'?'tsx':'ts'}`,import.meta.url),'utf8');
- const result=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText.replaceAll("'./native'","'./native.mjs'").replaceAll("'./model'","'./model.mjs'");
+ const result=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText.replaceAll("'./native'","'./native.mjs'").replaceAll("'./model'","'./model.mjs'").replaceAll("'./finance'","'./finance.mjs'");
  await fs.writeFile(new URL(name+'.mjs',temp),result);
 }
 let stored=null,exported=null;globalThis.window={KingProgress:{getItem:()=>stored,setItem:value=>stored=value,exportFile:(...args)=>exported=args}};globalThis.confirm=()=>true;
@@ -27,3 +27,10 @@ const entry=(metric,date,value)=>({id:metric+date,metric,date,value,note:''});
 assert.equal(cashBalance([entry('income','2026-10-01',100),entry('balance','2026-10-02',500),entry('spending','2026-10-03',40)]),460);
 assert.equal(cashBalance([entry('income','2026-10-01',100),entry('spending','2026-10-02',20)]),80);
 console.log('Progress checks passed: native persistence, score/streak, archive, edit, full backup round-trip, invalid backup preservation, cash snapshot accounting.');
+
+const finance={accounts:[{id:'cash',name:'Cash at hand',currency:'BWP',openingMinor:10000,opened:today}],transactions:[{id:'purchase',kind:'expense',accountId:'cash',amountMinor:2000,feeMinor:150,date:today,note:'Food'}]};
+useStore.getState().patch({finance});backupData();const financeBackup=exported[2];useStore.getState().patch({finance:{accounts:[],transactions:[]}});await restoreBackup(new File([financeBackup],'finance.json'));assert.deepEqual(useStore.getState().finance,finance);
+useStore.getState().clear();assert.deepEqual(useStore.getState().finance,finance,'Demo clear must not erase real finances');
+const invalid=JSON.parse(financeBackup);invalid.state.finance.transactions[0].accountId='missing';const storedBefore=stored;await assert.rejects(()=>restoreBackup(new File([JSON.stringify(invalid)],'bad-finance.json')));assert.equal(stored,storedBefore);
+const legacy=JSON.parse(backup);delete legacy.state.finance;await restoreBackup(new File([JSON.stringify(legacy)],'old-backup.json'));assert.deepEqual(useStore.getState().finance,{accounts:[],transactions:[]});
+console.log('Finance backup round-trip, invalid restore preservation, legacy restore and demo isolation passed.');

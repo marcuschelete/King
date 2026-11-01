@@ -20,9 +20,9 @@ public class ProgressActivity extends Activity {
     @Override public void onCreate(Bundle state){
         super.onCreate(state);
         getWindow().setStatusBarColor(0xff000000);getWindow().setNavigationBarColor(0xff000000);
-        LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(0xff000000);
-        Button back=new Button(this);back.setText("‹  KING Focus                     PROGRESS / 1.2");back.setTextColor(0xffffffff);back.setBackgroundColor(0xff111111);back.setOnClickListener(v->finish());root.addView(back,new LinearLayout.LayoutParams(-1,48));
-        web=new WebView(this);web.setBackgroundColor(0xff000000);root.addView(web,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);
+        LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackground(Atmosphere.background(this,true));
+        Button back=new Button(this);back.setText("‹  KING Focus                     PROGRESS / 1.4");back.setTextColor(0xffffffff);back.setBackgroundColor(0x80131f2b);back.setOnClickListener(v->finish());root.addView(back,new LinearLayout.LayoutParams(-1,48));
+        web=new WebView(this);web.setBackgroundColor(0x00000000);root.addView(web,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);
         WebSettings settings=web.getSettings();settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);settings.setAllowFileAccess(false);settings.setAllowContentAccess(false);settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);settings.setSupportMultipleWindows(false);
         web.addJavascriptInterface(new StorageBridge(),"KingProgress");
         web.setWebViewClient(new WebViewClient(){
@@ -38,13 +38,15 @@ public class ProgressActivity extends Activity {
             @Override public boolean onJsPrompt(WebView v,String url,String message,String value,JsPromptResult result){EditText input=new EditText(ProgressActivity.this);input.setText(value);new AlertDialog.Builder(ProgressActivity.this).setMessage(message).setView(input).setPositiveButton("Save",(d,w)->result.confirm(input.getText().toString())).setNegativeButton("Cancel",(d,w)->result.cancel()).setOnCancelListener(d->result.cancel()).show();return true;}
             @Override public boolean onShowFileChooser(WebView v,ValueCallback<Uri[]> callback,FileChooserParams params){if(fileCallback!=null)fileCallback.onReceiveValue(null);fileCallback=callback;try{startActivityForResult(params.createIntent(),OPEN);}catch(ActivityNotFoundException e){fileCallback.onReceiveValue(null);fileCallback=null;toast("No file picker available.");}return true;}
         });
-        web.loadUrl(ORIGIN);
+        String view=getIntent().getStringExtra("view");
+        if(view==null||!java.util.Arrays.asList("today","money","income","expense","accounts").contains(view))view="";
+        web.loadUrl(ORIGIN+"#view="+view);
     }
     private WebResourceResponse denied(){return new WebResourceResponse("text/plain","UTF-8",403,"Blocked",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));}
     private void toast(String message){Toast.makeText(this,message,Toast.LENGTH_LONG).show();}
     private final class StorageBridge {
         @JavascriptInterface public String getItem(){return getSharedPreferences("king",MODE_PRIVATE).getString("rivalData",null);}
-        @JavascriptInterface public void setItem(String value){if(value!=null&&value.length()<=2*1024*1024)getSharedPreferences("king",MODE_PRIVATE).edit().putString("rivalData",value).commit();}
+        @JavascriptInterface public boolean setItem(String value){return value!=null&&value.length()<=2*1024*1024&&getSharedPreferences("king",MODE_PRIVATE).edit().putString("rivalData",value).commit();}
         @JavascriptInterface public void exportFile(String name,String mime,String content){
             if(content==null||content.length()>2*1024*1024)return;
             runOnUiThread(()->{if(pendingExport!=null){toast("Finish the current export first.");return;}pendingExport=content;Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("text/csv".equals(mime)?"text/csv":"application/json").putExtra(Intent.EXTRA_TITLE,"text/csv".equals(mime)?"king-progress.csv":"king-progress-backup.json");try{startActivityForResult(intent,SAVE);}catch(ActivityNotFoundException e){pendingExport=null;toast("No file picker available.");}});

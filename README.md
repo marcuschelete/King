@@ -1,78 +1,43 @@
 # KING Focus
 
-A quiet, original Android home screen for intentional phone use. Monochrome, local-first, and designed around daily routines. Inspired by the functional idea of minimalist launchers; not affiliated with or a copy of Perful's mono. app, code, artwork, or brand.
+A local-first Android launcher with translucent panels, customizable wallpaper and an offline RIVAL progress dashboard.
 
-## Install on your phone
+## Install
 
-**[Download KING Focus 1.2.0 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.2.0.apk)**
+**[Download KING Focus 1.4.0 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.4.0.apk)**
 
-Android **9 or newer**, including Android 10. No Google Play Services required.
+Android 9 or newer and an up-to-date Android System WebView. Download the APK, open it and allow your browser/file manager to install it if Android asks. Install **over your existing KING app without uninstalling** to keep your data. Version code 8 uses the original KING signing certificate. Settings offers full JSON backup and restore.
 
-1. Open the APK download link on your phone. Download the **APK**, not this repository's source ZIP.
-2. Open the downloaded file. If Android asks, temporarily allow your browser/file manager to **install unknown apps**, then install KING Focus. You can disable that permission again afterwards.
-3. Open **KING Focus → ⚙ → Set KING as default Home app**, then select KING Focus.
-4. **Swipe up** from Home to open Apps. Long-press your essentials and choose **Pin to home**. Mark distracting apps to add a five-second pause and an intention prompt.
-5. **Swipe left** from Home for the dashboard: routines, tasks, notes, capture, calendar and usage. **Swipe right** from Home for Focus. Tap **Open routine** on the dashboard to edit rituals. Swipe horizontally back toward Home; Android Back also works.
-6. Calendar and Usage Access are optional; enable only the features you want. Speech input uses your installed speech provider.
+Choose KING under Android Settings → Apps → Default apps → Home app, or use KING Settings. Switch back through the same menu at any time.
 
-To switch back: **KING → ⚙ → Switch back to another launcher**, or Android **Settings → Apps → Default apps → Home app**. Menu wording varies by manufacturer. The original launcher is not removed.
+## What's new in 1.4
 
-## Version 1.2: KING × RIVAL
+- **Home folders:** tap + New folder, name it, then choose apps. Tap the folder to expand its icon-only grid. Icons use the installed apps' real artwork in grayscale. Long-press a folder to rename, reorder, change apps or delete the folder. Long-press an app for its accessible name and actions. Existing home pins are preserved.
+- **Alphabet navigation:** swipe up for Apps. Tap or drag the left A–Z/# rail to jump to a group; search stays at the top. Accented Latin names are grouped by their base letter.
+- **Habit calendar:** the dashboard has a monthly dot calendar using the same commitments and completions as RIVAL. Select a habit or all habits, browse previous months and tap a day to update it. Manage habits in RIVAL. The unused Intention and Capture cards are removed; saved notes remain in Settings.
+- **Quick finance:** Income, Expense and Accounts buttons open the relevant form directly. Add ABSA, RedotPay, Orange Money, MyZaka, Cash at hand or a custom account; choose its currency and opening balance/date.
+- **Account ledger:** income, expenses, transaction fees and account transfers update balances. Cash is an account too. Edit/delete entries, archive accounts and export a ledger CSV. Transfers do not count as income; different currencies stay separate. Cross-currency transfers require the amount received. Account tracking is manual, with no bank connection or exchange-rate service.
+- **Safe continuity:** older money snapshots remain under Earlier money records, separate from the new account ledger because their accounts are unknown. Full progress backups include the ledger. Existing tasks, pins, preferences and progress remain in place during an in-place upgrade.
 
-Swipe left from Home, then tap **Raise your standard** in the **Proof of progress** card. The dashboard is bundled in the APK and works offline. It opens directly to Stats, with Today, Stats, Rival and Log across the top.
+## Navigation and appearance
 
-- **Proof of progress:** Overview, Body, Mind, Craft, Money, Recovery, Spirit and All. **7D / 30D / 90D / 1Y / All** filters, 38 metrics, line graphs, latest values, changes and personal bests.
-- **Visuals:** strict monochrome, large monospaced numbers, bordered cards, a 28-day completion matrix and a category donut chart counting completed habits.
-- **Today:** scheduled commitments, completion percentage, streaks, add/edit/reorder/archive habits and past-day checklists.
-- **Rival:** Vale's perfect scheduled routine, points, cumulative gap chart, weekly/monthly verdicts.
-- **Log:** quick metric forms, entry editing/deletion, module grades, rapid/blitz chess, money snapshots, income/spending, savings goal, and self-review.
-- **Data:** CSV import/export, full progress JSON backup/restore, and Android-native storage. KING's Settings backup also includes progress. Use Log → Import CSV to bring metric entries from the original RIVAL website; browser checklist history does not transfer automatically.
-- Starts with an empty history and the RIVAL routine. **Log → Explore demo** optionally loads sample data; **Clear demo** removes sample metrics and resets checklist history. Demo numbers are labeled.
-- Existing pins, tasks, notes, timed rituals, settings and swipe controls remain available. Timed launcher rituals and RIVAL commitments are separate lists. Focus-session counts do not automatically become metric entries.
+Swipe **left** from Home for the dashboard; swipe **right** for the calendar agenda and focus; swipe **up** for Apps. Back returns Home. Settings also provides tap navigation. Long-press the clock for Settings.
 
-Install **over v1.1**, without uninstalling. Version code 3 uses the same private signing certificate. Requires Android 9+ and an up-to-date Android System WebView. No new Android permissions, accounts or network access. Device-to-device sync is not included.
+Choose the alpine background, your own photo or solid background in Settings. Both native panels and the RIVAL dashboard use translucent glass styling. Long-press either bottom corner shortcut to assign any installed app; the defaults are phone and calculator. Distraction rules still apply when launching apps from folders or shortcuts.
 
-## Version 1.1: quiet home, swipe navigation
+Proof of progress → Raise your standard opens RIVAL: Today, Stats, Rival, Log and Money. It includes habits, streaks, progress graphs, body measurements, chess ratings, grades and other metrics. Timed launcher rituals remain separately available in Settings.
 
-Install this APK **over the existing app**, without uninstalling. It uses the original signing key and preserves preferences, pins, notes, tasks and routine history. Export a backup first if desired.
+## Calendar and updates
 
-- Centered clock/date and smaller centered essentials; no branding banner, section headings or bottom tabs on Home.
-- Five essentials on Home (the first five visible pins); additional apps stay searchable in the drawer. Long-press → Move to top changes the selection without deleting pins.
-- Swipe **up**: app drawer. Swipe **left**: dashboard. Swipe **right**: focus.
-- Dashboard and routine lists scroll normally. Swipe right from dashboard to Home; swipe left from focus to Home. Swipe down at the top of the app drawer to close it.
-- Rounded monochrome dashboard cards; intention, routine history and capture moved off Home.
-- Settings: tap **⚙** or long-press the clock. Settings also offers tap-based navigation for users who do not want gestures.
-- Status bar hidden on first upgrade for a calmer home; it can be restored in Settings. Android's own navigation buttons remain available.
+Calendar permission is optional. The agenda reads all selected calendar sources available through Android's local calendar provider, including synced school/subscribed sources; it does not filter to events you created. Choose sources and a 1/3/7/14-day horizon. If a school calendar appears only on Google Calendar's website and is not synced to Android, KING cannot read it; source diagnostics help identify this. KING does not sync calendar accounts itself.
 
-## What is included
+On app activation, enabled update checks run at most every six hours against this repository's HTTPS update feed. A newer release prompts you to download its APK; Android still asks you to install it. Settings provides a manual check and an automatic-check toggle. Offline features work without a connection. The APK has Internet permission for these checks; no analytics or ads are included.
 
-| Area | KING implementation |
-| --- | --- |
-| Quiet home | Centered text-only essentials, searchable app drawer, pins, move-to-top, rename and hide/restore apps |
-| Monochrome appearance | Midnight black / milk white, adjustable app font size and weight, right alignment, outlined letter icons with three stroke weights |
-| Fullscreen and touch | Optional hidden status bar, matching navigation bar, optional subtle haptics, swipe between sections |
-| Quick capture | Local explicit `todo:` / `note:` routing; other text becomes a note; voice transcription can be reviewed before saving |
-| Tasks and notes | Create, edit, complete tasks, delete entries with confirmation; stored locally |
-| Awareness | Today's screen-active minutes and unlock events, using optional Android Usage Access |
-| Calendar | Next ongoing/upcoming event within seven days, with optional read-only permission |
-| Daily rituals | Editable daily times, completion tracking, per-ritual streaks, next ritual on Home, midnight reset |
-| Reflection | Editable intention and dated evening review |
-| Focus | 25 / 50 / 90 minute sessions, task intention, persistent timer, completed-session count |
-| Distraction friction | Five-second launch pause plus written purpose; distracting apps cannot be launched through KING during active focus |
-| Data control | Export/restore JSON backup with validation; no analytics, ads, accounts, or app network permission |
+## Limits and verification
 
-## Honest limits
+Focus blocking applies inside this launcher, not system-wide. Timers have no background completion alarm. Usage statistics depend on Android/OEM event history. No work-profile discovery, Android widget hosting or icon-pack support is included. Backups are unencrypted and should be stored privately; Android cloud backup is disabled.
 
-This is an independent first version, **not a pixel-perfect reproduction or verified complete feature parity** with mono. It uses original typography and letter icons rather than mono's proprietary artwork, pixel icon library, or animation system. Capture routing uses explicit prefixes, not AI or natural-language task inference.
-
-- Focus controls are **launcher-only**. Android notifications, recent apps, links, other launchers and system settings can still open apps. There is no accessibility service, device-admin lock or system-wide blocking.
-- Timers survive process restarts. They use monotonic time until reboot, then wall-clock time. Completion is recorded on the next visit; **there is no background alarm**. Ritual times are visual cues, not push reminders.
-- Usage reporting depends on device/OEM event history. Screen-active minutes include the lock screen and are not the same metric as app foreground time.
-- Calendar data is read from calendars already available on the phone. The app itself never syncs calendar accounts.
-- Voice input requests offline recognition, but the chosen speech provider may use the internet. Typed capture is fully local.
-- No work-profile app discovery, third-party Android widget hosting, notification filtering, or icon-pack support in v1.
-- Backups are unencrypted. Store them privately. The app opts out of Android cloud backup.
-- This is a sideloaded personal app, not a Play Store-reviewed release. See [verification](VERIFICATION.md) for what was actually tested.
+See [VERIFICATION.md](VERIFICATION.md) for exact checks. Native folder gestures, device installation, calendar-provider sync and real-device upgrade still need phone testing.
 
 ## Build and updates
 
@@ -90,6 +55,7 @@ cd progress
 npm ci
 npm run build
 node test-model.mjs
+node test-finance.mjs
 cd ..
 ```
 
