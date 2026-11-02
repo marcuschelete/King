@@ -18,3 +18,16 @@ assert.throws(()=>saveTransaction(f,tx('bad','expense',100,0,{date:'2026-10-31'}
 assert.throws(()=>validateFinance({...f,accounts:[...accounts,accounts[0]]}));
 assert.equal(balances(f,'2026-10-31').absa,0);
 console.log('Finance arithmetic passed: decimal precision, income/expense fees, cash withdrawals, currency separation, transfers, edit/delete, invalid input and opening-date boundaries.');
+const {expenseBreakdown}=await import(new URL('finance.mjs',folder));
+let categorized={accounts,transactions:[tx('food','expense',3000,100,{category:'food'}),tx('petrol','expense',6000,0,{category:'petrol'}),tx('legacy','expense',1000),tx('transfer','transfer',50000,50,{toAccountId:'cash',receivedMinor:50000}),tx('usd','expense',700,0,{accountId:'redot',category:'food'}),tx('future','expense',9999,0,{category:'food',date:'2026-12-01'})]};
+validateFinance(categorized);
+const breakdown=expenseBreakdown(categorized,day,'2026-11-30','BWP');
+assert.deepEqual(Object.fromEntries(breakdown.map(c=>[c.id,c.amount])),{petrol:6000,food:3000,uncategorised:1000,fees:150});
+assert.equal(breakdown.reduce((s,c)=>s+c.amount,0),10150);
+assert.equal(expenseBreakdown(categorized,day,'2026-11-30','USD')[0].amount,700);
+categorized=saveTransaction(categorized,{...categorized.transactions[2],category:'gifts'});
+assert.equal(expenseBreakdown(categorized,day,'2026-11-30','BWP').find(c=>c.id==='gifts').amount,1000);
+assert.ok(!expenseBreakdown(categorized,day,'2026-11-30','BWP').some(c=>c.id==='uncategorised'));
+assert.throws(()=>saveTransaction(categorized,tx('invalid','expense',100,0,{category:'made-up'})));
+assert.equal(JSON.parse(JSON.stringify(categorized)).transactions.find(t=>t.id==='legacy').category,'gifts');
+console.log('Expense breakdown passed: categories, legacy entries, fees, transfer exclusion, date/currency isolation, edits and persistence.');

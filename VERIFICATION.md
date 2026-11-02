@@ -1,5 +1,11 @@
 # Verification
 
+## Version 1.4.1
+
+- TypeScript build, finance and existing progress/backup tests pass. New tests cover category aggregation, legacy uncategorised records, fees, transfer exclusion, dates, currencies and category edits.
+- Signed Android SDK build passes; version code 9 retains the original signing certificate.
+- Browser visual check was blocked by Chromium crashing/hanging in this workspace; no new visual or native phone runtime pass is claimed.
+
 ## Version 1.4.0
 
 - TypeScript production build and SDK-only Android compile, packaging, alignment and signature verification passed.

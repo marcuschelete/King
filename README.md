@@ -4,11 +4,15 @@ A local-first Android launcher with translucent panels, customizable wallpaper a
 
 ## Install
 
-**[Download KING Focus 1.4.0 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.4.0.apk)**
+**[Download KING Focus 1.4.1 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.4.1.apk)**
 
-Android 9 or newer and an up-to-date Android System WebView. Download the APK, open it and allow your browser/file manager to install it if Android asks. Install **over your existing KING app without uninstalling** to keep your data. Version code 8 uses the original KING signing certificate. Settings offers full JSON backup and restore.
+Android 9 or newer and an up-to-date Android System WebView. Download the APK, open it and allow your browser/file manager to install it if Android asks. Install **over your existing KING app without uninstalling** to keep your data. Version code 9 uses the original KING signing certificate. Settings offers full JSON backup and restore.
 
 Choose KING under Android Settings → Apps → Default apps → Home app, or use KING Settings. Switch back through the same menu at any time.
+
+## Version 1.4.1
+
+The empty-home “choose your essentials” prompt is removed. Expense entry now requires a category. Money shows a monthly colour-coded donut and category bars with each amount and percentage, separated by currency. Categories include food, petrol, trading capital, emergency reserve, airtime, sweets, skincare, gifts, education, fitness, health, subscriptions, home, clothing, outings and other. Earlier uncategorised expenses can be edited; CSV and JSON backups preserve categories. All transaction fees appear separately. Transfers remain excluded, so moving money between tracked accounts does not inflate spending.
 
 ## What's new in 1.4
 

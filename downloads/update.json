@@ -1,7 +1,7 @@
 {
   "applicationId": "com.artist.king",
-  "versionCode": 8,
-  "versionName": "1.4.0",
-  "apkUrl": "https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.4.0.apk",
-  "notes": "Home folders with grayscale app icons, A\u2013Z drawer navigation, shared habit calendar, quick finance entry, multiple bank and cash accounts, fees and transfers, plus glass panels and calendar source controls."
+  "versionCode": 9,
+  "versionName": "1.4.1",
+  "apkUrl": "https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.4.1.apk",
+  "notes": "Removes the empty-home essentials prompt. Adds expense categories and a monthly colour-coded spending chart with amounts, percentages, currency selection and separate fees."
 }

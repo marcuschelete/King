@@ -129,7 +129,6 @@ public class MainActivity extends Activity {
         space(12);TextView date=text(new SimpleDateFormat("EEEE, d MMMM",Locale.getDefault()).format(new Date()),16,muted);date.setGravity(Gravity.CENTER);body.addView(date,new LinearLayout.LayoutParams(-1,-2));
         space(height<650?24:32);int count=0;
         for(String id:list("pins")){App a=findApp(id);if(a!=null&&!set("hidden").contains(id)){appRow(body,a,true);if(++count==5)break;}}
-        if(count==0){TextView choose=button("choose your essentials",()->go("Apps"));choose.setTextColor(muted);choose.setGravity(Gravity.CENTER);body.addView(choose);}
         space(16);homeFolders();
         if(remaining()>0){space(12);timerLabel=text(formatDuration(remaining()),15,muted);timerLabel.setGravity(Gravity.CENTER);timerLabel.setOnClickListener(v->go("Focus"));body.addView(timerLabel);}
         if(!prefs.getBoolean("gesturesSeen",false)){space(24);TextView hint=text("↑ apps     ← your day     → agenda",11,muted);hint.setGravity(Gravity.CENTER);body.addView(hint);}
@@ -475,7 +474,7 @@ public class MainActivity extends Activity {
         body.addView(button("Restore backup",()->confirm("Replace KING's current settings, tasks, notes and routine history with a backup?",()->{try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE),IMPORT);}catch(ActivityNotFoundException e){toast("No file picker available.");}})));
         body.addView(button("Android app permissions",()->safeStart(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())))));
         body.addView(button("Switch back to another launcher",()->safeStart(new Intent(Settings.ACTION_HOME_SETTINGS))));space(12);
-        body.addView(text("KING Focus 1.4.0 • Independent, original launcher.\nNo ads. No analytics. Network access is used only to check GitHub updates.\nBackups are unencrypted: keep them private. Voice input is handled by your chosen speech provider. Daily rituals are a checklist, not alarm notifications.",13,muted));
+        body.addView(text("KING Focus 1.4.1 • Independent, original launcher.\nNo ads. No analytics. Network access is used only to check GitHub updates.\nBackups are unencrypted: keep them private. Voice input is handled by your chosen speech provider. Daily rituals are a checklist, not alarm notifications.",13,muted));
     }
     @Override public void onRequestPermissionsResult(int req,String[] p,int[] r){super.onRequestPermissionsResult(req,p,r);render();}
     @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(result!=RESULT_OK||data==null)return;
