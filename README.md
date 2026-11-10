@@ -4,11 +4,19 @@ A local-first Android launcher with translucent panels, customizable wallpaper a
 
 ## Install
 
-**[Download KING Focus 1.4.1 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.4.1.apk)**
+**[Download KING Focus 1.5.0 APK](https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.5.0.apk)**
 
-Android 9 or newer and an up-to-date Android System WebView. Download the APK, open it and allow your browser/file manager to install it if Android asks. Install **over your existing KING app without uninstalling** to keep your data. Version code 9 uses the original KING signing certificate. Settings offers full JSON backup and restore.
+Android 9 or newer and an up-to-date Android System WebView. Download the APK, open it and allow your browser/file manager to install it if Android asks. Install **over your existing KING app without uninstalling** to keep your data. Version code 10 uses the original KING signing certificate. Settings offers full JSON backup and restore.
 
 Choose KING under Android Settings → Apps → Default apps → Home app, or use KING Settings. Switch back through the same menu at any time.
+
+## Version 1.5.0
+
+Home folders now use plain clickable words and a small expand/collapse chevron, with no card or pill background. Tap to reveal the same grayscale app icons; hold the title to edit. Existing folder contents are preserved.
+
+**Settings → Enable floating island:** allow Android's Display over other apps permission, then return to KING. Tap the compact pill for Media, Ring and Alarm sliders or Android Sound settings. Drag the pill (or expanded panel's header) to reposition it; its position is saved. It collapses after 15 seconds of inactivity or an outside touch and hides while locked. Turn it off in KING Settings or its persistent notification. Reset position is available in Settings.
+
+The island is off by default. It uses an opt-in foreground service and overlay permission, with no accessibility service or notification reading. Protected apps and some system screens can hide overlays. Android's Do Not Disturb restrictions still apply. After reboot or if Android stops it, return to KING to restart it. Some manufacturers may require allowing background operation in their battery settings. Native phone runtime testing remains outstanding.
 
 ## Version 1.4.1
 

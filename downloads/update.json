@@ -1,7 +1,7 @@
 {
   "applicationId": "com.artist.king",
-  "versionCode": 9,
-  "versionName": "1.4.1",
-  "apkUrl": "https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.4.1.apk",
-  "notes": "Removes the empty-home essentials prompt. Adds expense categories and a monthly colour-coded spending chart with amounts, percentages, currency selection and separate fees."
+  "versionCode": 10,
+  "versionName": "1.5.0",
+  "apkUrl": "https://github.com/marcuschelete/King/raw/refs/heads/main/downloads/KING-Focus-1.5.0.apk",
+  "notes": "Plain text home folders and an optional movable floating island with media, ring and alarm volume controls. Enable it in Settings and allow Display over other apps."
 }

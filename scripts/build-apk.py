@@ -26,9 +26,9 @@ def java_tool(jar, *args):
 manifest = (repo / 'android/app/src/main/AndroidManifest.xml').read_text(encoding='utf-8')
 (work / 'AndroidManifest.xml').write_text(manifest.replace('<manifest ', '<manifest package="com.artist.king" ', 1), encoding='utf-8')
 run(tools / ('aapt2' + ext), 'compile', '--dir', repo / 'android/app/src/main/res', '-o', work / 'resources.zip')
-run(tools / ('aapt2' + ext), 'link', '-o', work / 'base.apk', '-I', platform, '--manifest', work / 'AndroidManifest.xml', '--java', work / 'gen', '--min-sdk-version', '28', '--target-sdk-version', '34', '--version-code', '9', '--version-name', '1.4.1', '-A', repo / 'android/app/src/main/assets', work / 'resources.zip')
+run(tools / ('aapt2' + ext), 'link', '-o', work / 'base.apk', '-I', platform, '--manifest', work / 'AndroidManifest.xml', '--java', work / 'gen', '--min-sdk-version', '28', '--target-sdk-version', '34', '--version-code', '10', '--version-name', '1.5.0', '-A', repo / 'android/app/src/main/assets', work / 'resources.zip')
 sources = list((repo / 'android/app/src/main/java/com/artist/king').glob('*.java'))
-run(java / ('javac' + ext), '--release', '8', '-encoding', 'UTF-8', '-classpath', platform, '-d', work / 'classes', work / 'gen/com/artist/king/R.java', *sources)
+run(java / ('javac' + ext), '-source', '8', '-target', '8', '-encoding', 'UTF-8', '-classpath', platform, '-d', work / 'classes', work / 'gen/com/artist/king/R.java', *sources)
 with zipfile.ZipFile(work / 'classes.jar', 'w') as archive:
     for file in (work / 'classes').rglob('*.class'):
         archive.write(file, file.relative_to(work / 'classes'))

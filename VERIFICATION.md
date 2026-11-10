@@ -1,5 +1,13 @@
 # Verification
 
+## Version 1.5.0
+
+- SDK-only Android compile, resource packaging, D8, zip alignment and signature verification passed; version code 10, original KING certificate.
+- Existing 13 gesture, 12 update-policy, 35 calendar/timezone and 8 app-index checks passed.
+- Manifest declares overlay/audio/foreground permissions and an unexported special-use foreground service. Island remains opt-in, with notification stop action, lock-screen hiding, collapse timeout and permission checks.
+- Folder data and bundled progress/finance assets are unchanged.
+- No Android device or emulator was available. Overlay positioning, volume changes, permission flows, OEM background behaviour and in-place installation still require device testing.
+
 ## Version 1.4.1
 
 - TypeScript build, finance and existing progress/backup tests pass. New tests cover category aggregation, legacy uncategorised records, fees, transfer exclusion, dates, currencies and category edits.

@@ -6,8 +6,8 @@ android {
         applicationId 'com.artist.king'
         minSdk 28
         targetSdk 34
-        versionCode 9
-        versionName '1.4.1'
+        versionCode 10
+        versionName '1.5.0'
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     lint { abortOnError true }

@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
         if(!prefs.getBoolean("designV2",false))prefs.edit().putBoolean("fullscreen",true).putBoolean("designV2",true).apply();
         render();
     }
-    @Override protected void onResume() {super.onResume(); loadApps(); render(); handler.removeCallbacks(tick); handler.post(tick);updates.check(this,false);}
+    @Override protected void onResume() {super.onResume(); IslandService.sync(this); loadApps(); render(); handler.removeCallbacks(tick); handler.post(tick);updates.check(this,false);}
     @Override protected void onPause() {super.onPause();handler.removeCallbacks(tick);}
     @Override protected void onNewIntent(Intent i) {super.onNewIntent(i);setIntent(i);page="Home";render();updates.check(this,false);}
     @Override public void onBackPressed() {go(Arrays.asList("Ritual","Tasks","Notes").contains(page)?"Board":"Home");}
@@ -192,7 +192,7 @@ public class MainActivity extends Activity {
         JSONArray folders=array("folders");
         for(int i=0;i<folders.length();i++){
             JSONObject folder=folders.optJSONObject(i);if(folder==null)continue;String id=folder.optString("id");
-            LinearLayout container=card(body);TextView heading=button(folder.optString("name","Folder")+(id.equals(expandedFolder)?"  −":"  +"),()->{expandedFolder=id.equals(expandedFolder)?"":id;render();});heading.setTextSize(18);heading.setOnLongClickListener(v->{folderOptions(id);return true;});container.addView(heading);
+            LinearLayout container=new LinearLayout(this);container.setOrientation(LinearLayout.VERTICAL);body.addView(container);TextView heading=button(folder.optString("name","Folder")+(id.equals(expandedFolder)?"  ˄":"  ˅"),()->{expandedFolder=id.equals(expandedFolder)?"":id;render();});heading.setBackgroundColor(Color.TRANSPARENT);heading.setTextSize(18);heading.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);heading.setContentDescription(folder.optString("name")+(id.equals(expandedFolder)?", expanded":", collapsed")+". Hold to edit.");heading.setOnLongClickListener(v->{folderOptions(id);return true;});container.addView(heading);
             if(!id.equals(expandedFolder))continue;
             JSONArray members=folder.optJSONArray("apps");List<App> visible=new ArrayList<>();if(members!=null)for(int j=0;j<members.length();j++){App a=findApp(members.optString(j));if(a!=null&&!set("hidden").contains(a.id))visible.add(a);}
             if(visible.isEmpty())container.addView(text("Hold the folder title to add apps.",13,muted));
@@ -457,6 +457,14 @@ public class MainActivity extends Activity {
         body.addView(button("Notes archive",()->go("Notes")));
         section("UPDATES");body.addView(button("Check for updates",()->updates.check(this,true)));toggle("Check GitHub automatically","autoUpdates",true);
         body.addView(text("Checks at most once every six hours when you return to KING. Downloads open in your browser. Android confirms installation.",13,muted));
+        section("FLOATING ISLAND");
+        body.addView(button(prefs.getBoolean("islandEnabled",false)?"Turn island off":"Enable floating island",()->{
+            if(prefs.getBoolean("islandEnabled",false)){prefs.edit().putBoolean("islandEnabled",false).apply();IslandService.sync(this);render();return;}
+            prefs.edit().putBoolean("islandEnabled",true).apply();
+            if(!Settings.canDrawOverlays(this))safeStart(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,Uri.parse("package:"+getPackageName())));else IslandService.sync(this);render();
+        }));
+        body.addView(text("Tap the small pill for Media, Ring and Alarm volume. Drag its handle to place it anywhere. It collapses after 15 seconds and hides while locked. Allow Display over other apps, then return to KING. Some protected apps hide overlays. After reboot, open KING to restart it.",13,muted));
+        body.addView(button("Reset island position",()->{prefs.edit().remove("islandX").remove("islandY").apply();stopService(new Intent(this,IslandService.class));IslandService.sync(this);}));
         section("ATMOSPHERE");body.addView(button("Wallpaper & appearance",()->wallpaperOptions()));
         body.addView(button("Create home folder",()->newFolder()));
         body.addView(button("Assign left shortcut",()->assignShortcut("leftShortcut")));body.addView(button("Assign right shortcut",()->assignShortcut("rightShortcut")));
@@ -474,7 +482,7 @@ public class MainActivity extends Activity {
         body.addView(button("Restore backup",()->confirm("Replace KING's current settings, tasks, notes and routine history with a backup?",()->{try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE),IMPORT);}catch(ActivityNotFoundException e){toast("No file picker available.");}})));
         body.addView(button("Android app permissions",()->safeStart(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())))));
         body.addView(button("Switch back to another launcher",()->safeStart(new Intent(Settings.ACTION_HOME_SETTINGS))));space(12);
-        body.addView(text("KING Focus 1.4.1 • Independent, original launcher.\nNo ads. No analytics. Network access is used only to check GitHub updates.\nBackups are unencrypted: keep them private. Voice input is handled by your chosen speech provider. Daily rituals are a checklist, not alarm notifications.",13,muted));
+        body.addView(text("KING Focus 1.5.0 • Independent, original launcher.\nNo ads. No analytics. Network access is used only to check GitHub updates.\nBackups are unencrypted: keep them private. Voice input is handled by your chosen speech provider. Daily rituals are a checklist, not alarm notifications.",13,muted));
     }
     @Override public void onRequestPermissionsResult(int req,String[] p,int[] r){super.onRequestPermissionsResult(req,p,r);render();}
     @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(result!=RESULT_OK||data==null)return;
